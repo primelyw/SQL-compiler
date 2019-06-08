@@ -1,0 +1,17 @@
+TABLE_CNT 2
+TABLE_BEGIN
+NAME CNSS
+SIZE 2
+COL_NAME ID Age 
+COL_TYPE	string int 
+primelee 20 
+yype 20 
+TABLE_END
+TABLE_BEGIN
+NAME CNSS2
+SIZE 2
+COL_NAME ID Age 
+COL_TYPE	string int 
+primelee 20 
+yype 20 
+TABLE_END

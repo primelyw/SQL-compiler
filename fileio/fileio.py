@@ -171,24 +171,74 @@ class sheet:
         if not sub_sig[0]:
             sig[0] = sub_sig[0];sig[1] = sub_sig[1]
         return sig
-    
-            
-            
-    
+
+    def export_tables(self,fname):
+        f = open(fname,'w')
+        f.write('TABLE_CNT '+str(len(self.tables)))
+        for tb in self.tables:
+            f.write('\nTABLE_BEGIN\n')
+            f.write('NAME '+tb.name+"\nSIZE "+str(tb.log_cnt)+'\nCOL_NAME ')
+            for col_name in tb.ls[0]:
+                col_name = col_name[0]
+                f.write(col_name+' ')
+            f.write('\nCOL_TYPE\t')
+            for col_type in tb.ls[0]:
+                col_type = col_type[1]
+                f.write(col_type+' ')
+            f.write('\n')
+            for log in tb.ls[1:]:
+                for val in log:
+                    f.write(str(val)+' ')
+                f.write('\n')
+            f.write('TABLE_END')
+        f.close()
+
+    def import_tables(self,fname):
+        f = open(fname,'r')
+        keys = ['TABLE_CNT','TABLE_BEGIN','NAME','SIZE','COL_NAME','COL_TYPE','TABLE_END']
+        key_len = {}
+        for i in keys:
+            key_len.update({i:len(i)+1})
+        #print key_len
+        str_cnt = f.readline()[:-1][key_len['TABLE_CNT']:]
+        #print str_cnt
+        tb_cnt = int(str_cnt)
+        for i in range(tb_cnt):
+            f.readline()
+            tb_name = f.readline()[:-1][key_len['NAME']:]
+            tb_log_cnt = int(f.readline()[:-1][key_len['SIZE']:])
+            col_names = f.readline()[:-1][key_len['COL_NAME']:].split(' ')[:-1]
+            col_types = f.readline()[:-1][key_len['COL_TYPE']:].split(' ')[:-1]
+            col = [list(i) for i in zip(col_names,col_types)]
+            ls = [col]
+            for j in range(tb_log_cnt):
+                log = f.readline()[:-1].split(' ')[:-1]
+                for k in range(len(log)):
+                    if col[k][1] == 'int':
+                        log[k] = int(log[k])
+                ls.append(log)
+            f.readline()
+            tb = table(ls,tb_name)
+            tb.log_cnt = tb_log_cnt
+            tb.display()
+            self.tables = []
+            self.tables.append(tb)
 
 def test():
-
     sh = sheet('prime_db')
     sh.create_table([[['ID', 'string'], ['Age', 'int']]],'CNSS')
     sh.add_logs('CNSS',[['"primelee"', 20]])
+    sh.add_logs('CNSS',[['"yype"', 20]])
     sh.search_logs('CNSS',[['ID', '=', '"primelee"']])
-    sh.delete_logs('CNSS',[['ID', '=', '"primelee"']])
-    sh.search_logs('CNSS',[['ID', '=', '"primelee"']])
-    print 'debug'
-    sh.print_table('CNSS')
-    
+    #sh.print_table('CNSS')
 
-    
+    sh.create_table([[['ID', 'string'], ['Age', 'int']]],'CNSS2')
+    sh.add_logs('CNSS2',[['"primelee"', 20]])
+    sh.add_logs('CNSS2',[['"yype"', 20]])
+    sh.search_logs('CNSS2',[['ID', '=', '"primelee"']])
+
+    sh.export_tables('cnss_members.txt')
+    sh.import_tables('cnss_members.txt')
 
 if __name__ == '__main__':
     test()

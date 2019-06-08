@@ -89,6 +89,16 @@ def main():
         com = read_commands()
         if com == 'quit();':
             break
+        elif com == 'export tables;':
+            fname = raw_input('.. file name to export >> ')
+            print repr(fname)
+            sh.export_tables(fname)
+            continue
+        elif com == 'import tables;':
+            fname = raw_input('.. file name to import from >> ')
+            sh.import_tables(fname)
+            continue
+
         payload = get_payload(com)
         #print 'payload ',payload
         for each in payload:
